@@ -1,6 +1,6 @@
 # Use Reducer With Side Effects
 <p>
-  Inspired by the <a href="https://reasonml.github.io/reason-react/docs/en/state-actions-reducer">`reducerComponent`</a> of `ReasonReact` , this provides a way to declaratively declare side effects with updates, or to execute a side effect through the reducer while keeping the reducer pure.
+  Inspired by the <a href="https://reasonml.github.io/reason-react/docs/en/state-actions-reducer">`reducerComponent`</a> of `ReasonReact`, this provides a way to declaratively declare side effects with updates, or to execute a side effect through the reducer while keeping the reducer pure.
   The general idea being that the side effects simply declare intent to execute further code, but belong with the update.
   reducers always return one of `Update`, `NoUpdate`, `UpdateWithSideEffects`, or `SideEffects` function.
 </p>
@@ -20,7 +20,7 @@
 
 Outside of returning the functions of above inside you're reducer this should function almost identically to the built in useReducer.
 
-### Example -
+### Example 
 
 #### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a>
 
