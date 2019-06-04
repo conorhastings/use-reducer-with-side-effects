@@ -22,6 +22,8 @@ Outside of returning the functions of above inside you're reducer this should fu
 
 ### Example -
 
+#### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a>
+
 ```jsx
 import React from "react";
 import ReactDOM from "react-dom";
