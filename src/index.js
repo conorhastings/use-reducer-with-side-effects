@@ -22,7 +22,7 @@ export const UpdateWithSideEffect = (newState, sideEffect) => ({
 };
 
 export const SideEffect = sideEffect => ({ state, reducer, setState }) =>
-  sideEffect(action => {
+  sideEffect(state, action => {
     const reducerReturn = reducer(state, action);
     reducerReturn({ state, setState, reducer });
   });
