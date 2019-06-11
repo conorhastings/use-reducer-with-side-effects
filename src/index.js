@@ -18,15 +18,17 @@ export const SideEffect = newSideEffect => ({
 });
 
 async function executeSideEffects({ sideEffects, state, dispatch }) {
-  await Promise.all(
-    sideEffects.forEach(sideEffect => {
-      sideEffect.effect(state, dispatch);
-      dispatch({
-        type: REMOVE_EXECUTED_SIDE_EFFECT,
-        sideEffect
-      });
-    })
-  );
+  await (sideEffects && sideEffects.length
+    ? Promise.all(
+        sideEffects.forEach(sideEffect => {
+          sideEffect.effect(state, dispatch);
+          dispatch({
+            type: REMOVE_EXECUTED_SIDE_EFFECT,
+            sideEffect
+          });
+        })
+      )
+    : Promise.resolve([]));
 }
 
 function finalReducer(reducer) {
