@@ -17,18 +17,22 @@ export const SideEffect = newSideEffect => ({
   newSideEffect: { effect: newSideEffect, id: Math.random() * 10000 }
 });
 
-async function executeSideEffects({ sideEffects, state, dispatch }) {
-  await (sideEffects && sideEffects.length
-    ? Promise.all(
-        sideEffects.forEach(sideEffect => {
-          sideEffect.effect(state, dispatch);
-          dispatch({
-            type: REMOVE_EXECUTED_SIDE_EFFECT,
-            sideEffect
-          });
-        })
-      )
-    : Promise.resolve([]));
+async function executeSideEffects({
+  sideEffects,
+  state,
+  dispatch
+}) {
+  if (sideEffects) {
+    const effects = await Promise.all(sideEffects.map(sideEffect => {
+      sideEffect.effect(state, dispatch);
+      dispatch({
+        type: REMOVE_EXECUTED_SIDE_EFFECT,
+        sideEffect
+      });
+    }))
+    return effects;
+  }
+  return Promise.resolve();
 }
 
 function finalReducer(reducer) {
