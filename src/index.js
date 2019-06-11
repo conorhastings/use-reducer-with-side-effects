@@ -1,8 +1,12 @@
 import { useReducer, useEffect } from "react";
 
+const NO_UPDATE_SYMBOL = Symbol("NO_UPDATE_SYMBOL");
+
+const REMOVE_EXECUTED_SIDE_EFFECT = Symbol("REMOVE_EXECUTED_SIDE_EFFECT");
+
 export const Update = newState => ({ newState });
 
-export const NoUpdate = () => ({ noUpdate: true });
+export const NoUpdate = () => NO_UPDATE_SYMBOL;
 
 export const UpdateWithSideEffect = (newState, newSideEffect) => ({
   newState,
@@ -18,7 +22,7 @@ async function executeSideEffects({ sideEffects, state, dispatch }) {
     sideEffects.forEach(sideEffect => {
       sideEffect.effect(state, dispatch);
       dispatch({
-        type: "REMOVE_EXECUTED_SIDE_EFFECT",
+        type: REMOVE_EXECUTED_SIDE_EFFECT,
         sideEffect
       });
     })
@@ -27,19 +31,17 @@ async function executeSideEffects({ sideEffects, state, dispatch }) {
 
 function finalReducer(reducer) {
   return function({ state, sideEffects = [] }, action) {
-    let { newState, newSideEffect, noUpdate } = reducer(state, action);
+    let { newState, newSideEffect } = reducer(state, action);
     let newSideEffects = sideEffects;
     newSideEffects = newSideEffect
       ? [...newSideEffects, newSideEffect]
       : newSideEffects;
-    if (action.type === "REMOVE_EXECUTED_SIDE_EFFECT") {
+    if (action.type === REMOVE_EXECUTED_SIDE_EFFECT) {
       newSideEffects = sideEffects.filter(
         effect => effect.id !== action.sideEffect.id
       );
-    } else if (noUpdate) {
+    } else if (action === NO_UPDATE_SYMBOL) {
       return { state, sideEffects };
-    } else if (newSideEffect) {
-      sideEffects = (sideEffects || []).concat(newSideEffect);
     }
     return { state: newState || state, sideEffects: newSideEffects };
   };
