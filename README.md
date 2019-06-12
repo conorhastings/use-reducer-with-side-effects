@@ -32,27 +32,22 @@ import useReducerWithSideEffect, {
 
 import "./styles.css";
 
-function reducer(state, action = {}) {
-  if (action.type === "ADDTHENSUBTRACT2") {
-    return UpdateWithSideEffect(state + action.increment, (_, dispatch) => {
-      setTimeout(() => dispatch({ type: "SUBTRACT", decrement: 2 }), 3000);
+function reducer(state = {}, action}) {
+  if (action.type === "FETCH_BOOKS") {
+    return UpdateWithSideEffect({...state, fetchingBooks: true }, (_, dispatch) => {
+      fetchBooks.then(books => {
+        type: 'SET_BOOKS',
+        payload: { books }
+      });
     });
-  } else if (action.type === "SUBTRACT") {
-    return Update(state - action.decrement);
-  } else if (action.type === "MULTIPLYAFTERFIVESECONDS") {
-    return SideEffect((state, dispatch) =>
-      setTimeout(
-        () =>
-          dispatch({
-            type: "ADDTHENSUBTRACT2",
-            increment: state * action.multiplier
-          }),
-        5000
-      )
-    );
-  } else {
-    return NoUpdate();
+  } else if (action.type === "SET_BOOKS") {
+    return Update({...state, fetchingBooks: false, books });
+  } else if (action.type === "PING_SERVER") {
+     return SideEffect((state, dispatch) => {
+      pingServer(state.lastUpdated)
+     })
   }
+  return NoUpdate();
 }
 
 function App() {
