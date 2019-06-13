@@ -7,8 +7,8 @@
  
  ### Install
  
- * ```bash npm install use-reducer-with-side-effects --save```
- * ```bash yarn add use-reducer-with-side-effects```
+ * ``` npm install use-reducer-with-side-effects --save```
+ * ``` yarn add use-reducer-with-side-effects```
 
 ### Exports
 
