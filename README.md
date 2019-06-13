@@ -4,6 +4,11 @@
   reducers always return one of `Update`, `NoUpdate`, `UpdateWithSideEffects`, or `SideEffects` function.
 
  One example in which this may be useful is when dispatching a second action depends on the success of the first action, instead of waiting to find out, one can declare the side effect along side the update.
+ 
+ ### Install
+ 
+ * ```bash npm install use-reducer-with-side-effects --save```
+ * ```bash yarn add use-reducer-with-side-effects```
 
 ### Exports
 
