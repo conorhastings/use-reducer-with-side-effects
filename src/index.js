@@ -36,11 +36,11 @@ function finalReducer(reducer) {
   };
 }
 
-export default function useCreateReducerWithEffect(reducer, initialState) {
+export default function useCreateReducerWithEffect(reducer, initialState, init) {
   const [{ state, sideEffects }, dispatch] = useReducer(finalReducer(reducer), {
     state: initialState,
     sideEffects: []
-  });
+  }, init);
   useEffect(() => {
     if (sideEffects.length) {
       async function runSideEffects() {
