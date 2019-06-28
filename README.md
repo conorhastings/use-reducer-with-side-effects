@@ -23,62 +23,72 @@ Outside of returning the functions of above inside you're reducer this should fu
 
 ### Example 
 
-#### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a>
+#### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a
 
+#### A comparison using an adhoc use effect versus this library
+
+##### adhoc 
 ```jsx
-import React from "react";
-import ReactDOM from "react-dom";
-import useReducerWithSideEffect, {
-  Update,
-  NoUpdate,
-  UpdateWithSideEffect,
-  SideEffect
-} from "./useReducerWithSideEffect";
-
-import "./styles.css";
-
-function reducer(state = {}, action}) {
-  if (action.type === "FETCH_BOOKS") {
-    return UpdateWithSideEffect({...state, fetchingBooks: true }, (_, dispatch) => {
-      fetchBooks.then(books => {
-        type: 'SET_BOOKS',
-        payload: { books }
-      });
-    });
-  } else if (action.type === "SET_BOOKS") {
-    return Update({...state, fetchingBooks: false, books });
-  } else if (action.type === "PING_SERVER") {
-     return SideEffect((state, dispatch) => {
-      pingServer(state.lastUpdated)
-     })
-  }
-  return NoUpdate();
-}
-
-function App() {
-  const { state, dispatch } = useReducerWithSideEffect(reducer, 0);
-  return (
-    <div className="App">
-      <button
-        onClick={() => dispatch({ type: "ADDTHENSUBTRACT2", increment: 5 })}
-      >
-        click
-      </button>
-      <br />
-      <button
-        onClick={() =>
-          dispatch({ type: "MULTIPLYAFTERFIVESECONDS", multiplier: 5 })
+function Avatar({ userName }) {
+  const [state, dispatch] = useReducer(
+    (state, action) => {
+      switch (action.type) {
+        case FETCH_AVATAR: {
+          return { ...state, fetchingAvatar: true };
         }
-      >
-        Multiply after Five Seconds
-      </button>
-      {state}
-    </div>
+        case FETCH_AVATAR_SUCCESS: {
+          return { ...state, fetchingAvatar: false, avatar: action.avatar };
+        }
+        case FETCH_AVATAR_FAILURE: {
+          return { ...state, fetchingAvatar: false };
+        }
+      }
+    },
+    { avatar: null }
   );
-}
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(<App />, rootElement);
+  useEffect(() => {
+    dispatch({ type: FETCH_AVATAR });
+    fetch(`/avatar/${usereName}`).then(
+      avatar => dispatch({ type: FETCH_AVATAR_SUCCESS, avatar }),
+      dispatch({ type: FETCH_AVATAR_FAILURE })
+    );
+  }, [userName]);
+
+  return <img src={!fetchingAvatar && avatar ? avatar : DEFAULT_AVATAR} />
+}
 ```
- 
- 
+Library with colocated async action
+```jsx
+function Avatar({ userName }) {
+  const [{ avatar }, dispatch] = useReducerWithSideEffects(
+    (state, action) => {
+      switch (action.type) {
+        case FETCH_AVATAR: {
+          return UpdateWithSideEffect({ ...state, fetchingAvatar: true }, (state, dispatch) => {
+                fetch(`/avatar/${usereName}`).then(
+                  avatar =>
+                    dispatch({
+                      type: FETCH_AVATAR_SUCCESS,
+                      avatar
+                    }),
+                  dispatch({ type: FETCH_AVATAR_FAILURE })
+                );
+          });
+        }
+        case FETCH_AVATAR_SUCCESS: {
+          return Update({ ...state, fetchingAvatar: false, avatar: action.avatar });
+        }
+        case FETCH_AVATAR_FAILURE: {
+          return Update({ ...state, fetchingAvatar: false })
+        }
+      }
+    },
+    { avatar: null }
+  );
+
+  useEffect(() => dispatch({ type: FETCH_AVATAR }) , [userName]);
+
+  return <img src={!fetchingAvatar && avatar ? avatar : DEFAULT_AVATAR} />;
+}
+```
