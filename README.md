@@ -55,13 +55,13 @@ function Avatar({ userName }) {
     );
   }, [userName]);
 
-  return <img src={!fetchingAvatar && avatar ? avatar : DEFAULT_AVATAR} />
+  return <img src={!state.fetchingAvatar && state.avatar ? state.avatar : DEFAULT_AVATAR} />
 }
 ```
 Library with colocated async action
 ```jsx
 function Avatar({ userName }) {
-  const [{ avatar }, dispatch] = useReducerWithSideEffects(
+  const [{ fetchingAvatar, avatar }, dispatch] = useReducerWithSideEffects(
     (state, action) => {
       switch (action.type) {
         case FETCH_AVATAR: {
