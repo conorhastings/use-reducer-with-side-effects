@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useRef } from "react";
 
 const NO_UPDATE_SYMBOL = Symbol("NO_UPDATE_SYMBOL");
 
@@ -14,13 +14,17 @@ export const UpdateWithSideEffect = (newState, newSideEffect) => ({
 export const SideEffect = newSideEffect => ({ newSideEffect });
 
 async function executeSideEffects({ sideEffects, state, dispatch }) {
+  let cancelFuncs = [];
   if (sideEffects) {
     while (sideEffects.length) {
       const sideEffect = sideEffects.shift();
-      sideEffect(state, dispatch);
+      const cancel = sideEffect(state, dispatch);
+      if (cancel && typeof cancel === "function") {
+        cancelFuncs.push(cancel);
+      }
     }
   }
-  return Promise.resolve();
+  return Promise.resolve(cancelFuncs);
 }
 
 function finalReducer(reducer) {
@@ -32,21 +36,48 @@ function finalReducer(reducer) {
     const newSideEffects = newSideEffect
       ? [...state.sideEffects, newSideEffect]
       : state.sideEffects;
-    return { state: newState || state.state, sideEffects: newSideEffects };
+    return {
+      state: newState || state.state,
+      sideEffects: newSideEffects
+    };
   };
 }
 
-export default function useCreateReducerWithEffect(reducer, initialState, init) {
-  const [{ state, sideEffects }, dispatch] = useReducer(finalReducer(reducer), {
-    state: initialState,
-    sideEffects: []
-  }, init);
+export default function useCreateReducerWithEffect(
+  reducer,
+  initialState,
+  init
+) {
+  const [{ state, sideEffects }, dispatch] = useReducer(
+    finalReducer(reducer),
+    {
+      state: initialState,
+      sideEffects: []
+    },
+    init
+  );
+  let cancelFuncs = useRef([]);
   useEffect(() => {
     if (sideEffects.length) {
-      async function runSideEffects() {
-        await executeSideEffects({ sideEffects, state, dispatch });
+      async function asyncEffects() {
+        async function runSideEffects() {
+          const cancels = await executeSideEffects({
+            sideEffects,
+            state,
+            dispatch
+          });
+          return cancels;
+        }
+        const cancels = await runSideEffects();
+        cancelFuncs.current = cancels;
       }
-      runSideEffects();
+      asyncEffects();
+      if (cancelFuncs.current.length) {
+        cancelFuncs.current.forEach(func => {
+          func(state);
+          cancelFuncs.current = [];
+        });
+      }
     }
   }, [sideEffects]); //eslint-disable-line
   return [state, dispatch];
