@@ -34,7 +34,10 @@ function finalReducer(reducer) {
     }
     let { newState, newSideEffect } = reducer(state.state, action);
     const newSideEffects = newSideEffect
-      ? [...state.sideEffects, newSideEffect]
+      ? [
+        ...state.sideEffects,
+        Array.isArray(newSideEffect) ? ...newSideEffect : newSideEffect
+      ]
       : state.sideEffects;
     return {
       state: newState || state.state,
