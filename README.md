@@ -23,7 +23,7 @@ Outside of returning the functions of above inside you're reducer this should fu
 
 ### Example 
 
-#### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a
+#### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a>
 
 #### A comparison using an adhoc use effect versus this library
 
