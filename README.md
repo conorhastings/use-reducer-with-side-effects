@@ -29,6 +29,8 @@ Outside of returning the functions of above inside you're reducer this should fu
 
 ##### adhoc 
 ```jsx
+import React, { useReducer } from 'react';
+
 function Avatar({ userName }) {
   const [state, dispatch] = useReducer(
     (state, action) => {
@@ -60,6 +62,8 @@ function Avatar({ userName }) {
 ```
 Library with colocated async action
 ```jsx
+import useReducerWithSideEffects, { UpdateWithSideEffect, Update } from 'use-reducer-with-side-effects';
+
 function Avatar({ userName }) {
   const [{ fetchingAvatar, avatar }, dispatch] = useReducerWithSideEffects(
     (state, action) => {
