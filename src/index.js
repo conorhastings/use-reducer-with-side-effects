@@ -2,12 +2,12 @@ import { useReducer, useEffect, useRef } from "react";
 
 const NO_UPDATE_SYMBOL = Symbol("NO_UPDATE_SYMBOL");
 
-export const Update = newState => ({ newState });
+export const Update = state => ({ state });
 
 export const NoUpdate = () => NO_UPDATE_SYMBOL;
 
-export const UpdateWithSideEffect = (newState, newSideEffect) => ({
-  newState,
+export const UpdateWithSideEffect = (state, newSideEffect) => ({
+  state,
   newSideEffect
 });
 
@@ -32,15 +32,15 @@ function finalReducer(reducer) {
     if (action === NO_UPDATE_SYMBOL) {
       return state;
     }
-    let { newState, newSideEffect } = reducer(state.state, action);
-    const newSideEffects = newSideEffect
+    let changes = reducer(state.state, action);
+    const newSideEffects = changes.newSideEffect
       ? [
           ...state.sideEffects,
           ...(Array.isArray(newSideEffect) ? newSideEffect : [newSideEffect]),
         ]
       : state.sideEffects;
     return {
-      state: newState || state.state,
+      state: changes.state || state.state,
       sideEffects: newSideEffects
     };
   };
