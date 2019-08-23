@@ -27,22 +27,29 @@ async function executeSideEffects({ sideEffects, state, dispatch }) {
   return Promise.resolve(cancelFuncs);
 }
 
+function mergeState(prevState, changes, mergeChanges) {
+  const existingEffects = mergeChanges ? prevState.sideEffects : [];
+
+  const newSideEffects = changes.newSideEffect
+      ? [
+          ...existingEffects,
+          ...(Array.isArray(changes.newSideEffect) ? changes.newSideEffect : [changes.newSideEffect]),
+        ]
+      : state.sideEffects;
+
+  return {
+    state: changes.state || prevState.state,
+    sideEffects: newSideEffects
+  };
+}
+
 function finalReducer(reducer) {
   return function(state, action) {
     if (action === NO_UPDATE_SYMBOL) {
       return state;
     }
     let changes = reducer(state.state, action);
-    const newSideEffects = changes.newSideEffect
-      ? [
-          ...state.sideEffects,
-          ...(Array.isArray(newSideEffect) ? newSideEffect : [newSideEffect]),
-        ]
-      : state.sideEffects;
-    return {
-      state: changes.state || state.state,
-      sideEffects: newSideEffects
-    };
+    return mergeState(state, changes, true);
   };
 }
 
@@ -57,7 +64,14 @@ export default function useCreateReducerWithEffect(
       state: initialState,
       sideEffects: []
     },
-    init
+    (state) => {
+      let changes;
+      if (typeof init === 'function') {
+        changes = init(state);
+      }
+
+      return typeof changes !== 'undefined' ? mergeState(state, changes, false) : state;
+    }
   );
   let cancelFuncs = useRef([]);
   useEffect(() => {
