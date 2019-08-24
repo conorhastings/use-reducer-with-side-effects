@@ -9,6 +9,10 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [],
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/conorhastings/use-reducer-with-side-effects.git"
+  },
   "author": "Conor Hastings",
   "license": "MIT",
   "devDependencies": {
