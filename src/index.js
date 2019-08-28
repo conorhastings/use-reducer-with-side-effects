@@ -99,3 +99,55 @@ export default function useCreateReducerWithEffect(
   }, [sideEffects]); //eslint-disable-line
   return [state, dispatch];
 }
+
+export function composeReducers(reducers) {
+  return (state, action) => {
+    let reducerCount = reducers.length;
+    let sideEffects = [];
+    let noUpdateCount = 0;
+
+    const reducedResult = reducers.reduceRight((prevState, reducer, index) => {
+      // This is to handle the asymmetry in the useReducerWithSideFffect API.
+      // Whereas regular reducers have a consistent API that is state in, state out
+      // useReducerWithSideEffects has state in, state+sideEffects out
+      let state;
+      if (index === reducerCount - 1) {
+        state = prevState;
+      } else {
+        state = prevState.state;
+      }
+
+      const result = reducer(state, action);
+
+      let returnValue;
+      // When we do not have an update, then we increment our no-update counter and
+      // return the previous state.
+      if (result === NO_UPDATE_SYMBOL) {
+        noUpdateCount++;
+
+        returnValue = {
+          state,
+        };
+      } else {
+        returnValue = result;
+      }
+
+      if (result && Array.isArray(result.sideEffects)) {
+        sideEffects = sideEffects.concat(result.sideEffects);
+      }
+
+      return returnValue;
+    }, state);
+
+    const noUpdateOccurred = noUpdateCount === reducerCount;
+
+    if (noUpdateOccurred) {
+      return NO_UPDATE_SYMBOL;
+    }
+
+    return {
+      state: reducedResult && reducedResult.state,
+      sideEffects,
+    };
+  };
+}
