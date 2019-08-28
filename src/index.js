@@ -6,12 +6,12 @@ export const Update = state => ({ state });
 
 export const NoUpdate = () => NO_UPDATE_SYMBOL;
 
-export const UpdateWithSideEffect = (state, newSideEffect) => ({
+export const UpdateWithSideEffect = (state, sideEffects) => ({
   state,
-  newSideEffect
+  sideEffects
 });
 
-export const SideEffect = newSideEffect => ({ newSideEffect });
+export const SideEffect = sideEffects => ({ sideEffects });
 
 async function executeSideEffects({ sideEffects, state, dispatch }) {
   let cancelFuncs = [];
@@ -27,18 +27,18 @@ async function executeSideEffects({ sideEffects, state, dispatch }) {
   return Promise.resolve(cancelFuncs);
 }
 
-function mergeState(prevState, changes, mergeChanges) {
+function mergeState(prevState, newState, mergeChanges) {
   const existingEffects = mergeChanges ? prevState.sideEffects : [];
 
-  const newSideEffects = changes.newSideEffect
+  const newSideEffects = newState.sideEffects
       ? [
           ...existingEffects,
-          ...(Array.isArray(changes.newSideEffect) ? changes.newSideEffect : [changes.newSideEffect]),
+          ...(Array.isArray(newState.sideEffects) ? newState.sideEffects : [newState.sideEffects]),
         ]
       : state.sideEffects;
 
   return {
-    state: changes.state || prevState.state,
+    state: newState.state || prevState.state,
     sideEffects: newSideEffects
   };
 }
@@ -48,8 +48,8 @@ function finalReducer(reducer) {
     if (action === NO_UPDATE_SYMBOL) {
       return state;
     }
-    let changes = reducer(state.state, action);
-    return mergeState(state, changes, true);
+    let newState = reducer(state.state, action);
+    return mergeState(state, newState, true);
   };
 }
 
@@ -65,12 +65,12 @@ export default function useCreateReducerWithEffect(
       sideEffects: []
     },
     (state) => {
-      let changes;
+      let newState;
       if (typeof init === 'function') {
-        changes = init(state);
+        newState = init(state);
       }
 
-      return typeof changes !== 'undefined' ? mergeState(state, changes, false) : state;
+      return typeof newState !== 'undefined' ? mergeState(state, newState, false) : state;
     }
   );
   let cancelFuncs = useRef([]);
