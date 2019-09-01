@@ -1,4 +1,7 @@
 # Use Reducer With Side Effects
+
+[![npm version](https://img.shields.io/npm/v/use-reducer-with-side-effects.svg)](https://www.npmjs.com/package/use-reducer-with-side-effects)
+
   Inspired by the <a href="https://reasonml.github.io/reason-react/docs/en/state-actions-reducer">`reducerComponent`</a> of `ReasonReact`, this provides a way to declaratively declare side effects with updates, or to execute a side effect through the reducer while keeping the reducer pure.
   The general idea being that the side effects simply declare intent to execute further code, but belong with the update.
   reducers always return one of `Update`, `NoUpdate`, `UpdateWithSideEffects`, or `SideEffects` function.
