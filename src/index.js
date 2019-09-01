@@ -38,7 +38,7 @@ function mergeState(prevState, newState, mergeChanges) {
       : state.sideEffects;
 
   return {
-    state: newState.state || prevState.state,
+    state: newState.state,
     sideEffects: newSideEffects
   };
 }
