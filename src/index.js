@@ -27,18 +27,29 @@ async function executeSideEffects({ sideEffects, state, dispatch }) {
   return Promise.resolve(cancelFuncs);
 }
 
-function mergeState(prevState, newState, mergeChanges) {
-  const existingEffects = mergeChanges ? prevState.sideEffects : [];
+function mergeState(prevState, newState, isUpdate) {
+  const existingEffects = isUpdate ? prevState.sideEffects : [];
 
   const newSideEffects = newState.sideEffects
       ? [
           ...existingEffects,
           ...(Array.isArray(newState.sideEffects) ? newState.sideEffects : [newState.sideEffects]),
         ]
-      : state.sideEffects;
+      : prevState.sideEffects;
+  
+  const hasNewState =
+    typeof newState.hasOwnProperty === 'function' &&
+    newState.hasOwnProperty('state');
+
+  let updatedState;
+  if (isUpdate) {
+    updatedState = hasNewState ? newState.state : prevState.state;
+  } else {
+    updatedState = newState.state;
+  }
 
   return {
-    state: newState.state,
+    state: updatedState,
     sideEffects: newSideEffects
   };
 }
