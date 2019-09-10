@@ -1,5 +1,6 @@
 # Use Reducer With Side Effects
 
+[![Actions Status](https://github.com/conorhastings/react-syntax-highlighter/workflows/Node%20CI/badge.svg)](https://github.com/conorhastings/react-syntax-highlighter/actions)
 [![npm version](https://img.shields.io/npm/v/use-reducer-with-side-effects.svg)](https://www.npmjs.com/package/use-reducer-with-side-effects)
 
   Inspired by the <a href="https://reasonml.github.io/reason-react/docs/en/state-actions-reducer">`reducerComponent`</a> of `ReasonReact`, this provides a way to declaratively declare side effects with updates, or to execute a side effect through the reducer while keeping the reducer pure.
