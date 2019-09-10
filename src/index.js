@@ -1,6 +1,7 @@
 import { useReducer, useEffect, useRef } from "react";
 
-const NO_UPDATE_SYMBOL = Symbol("NO_UPDATE_SYMBOL");
+// for testing
+export const NO_UPDATE_SYMBOL = Symbol("NO_UPDATE_SYMBOL");
 
 export const Update = state => ({ state });
 
@@ -13,7 +14,8 @@ export const UpdateWithSideEffect = (state, sideEffects) => ({
 
 export const SideEffect = sideEffects => ({ sideEffects });
 
-async function executeSideEffects({ sideEffects, state, dispatch }) {
+//for testting
+export async function executeSideEffects({ sideEffects, state, dispatch }) {
   let cancelFuncs = [];
   if (sideEffects) {
     while (sideEffects.length) {
@@ -26,8 +28,8 @@ async function executeSideEffects({ sideEffects, state, dispatch }) {
   }
   return Promise.resolve(cancelFuncs);
 }
-
-function mergeState(prevState, newState, isUpdate) {
+// for testing
+export function mergeState(prevState, newState, isUpdate) {
   const existingEffects = isUpdate ? prevState.sideEffects : [];
 
   const newSideEffects = newState.sideEffects
