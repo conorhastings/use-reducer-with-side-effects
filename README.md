@@ -55,7 +55,7 @@ function Avatar({ userName }) {
 
   useEffect(() => {
     dispatch({ type: FETCH_AVATAR });
-    fetch(`/avatar/${usereName}`).then(
+    fetch(`/avatar/${userName}`).then(
       avatar => dispatch({ type: FETCH_AVATAR_SUCCESS, avatar }),
       dispatch({ type: FETCH_AVATAR_FAILURE })
     );
@@ -74,7 +74,7 @@ function Avatar({ userName }) {
       switch (action.type) {
         case FETCH_AVATAR: {
           return UpdateWithSideEffect({ ...state, fetchingAvatar: true }, (state, dispatch) => { // the second argument can also be an array of side effects
-                fetch(`/avatar/${usereName}`).then(
+                fetch(`/avatar/${userName}`).then(
                   avatar =>
                     dispatch({
                       type: FETCH_AVATAR_SUCCESS,
