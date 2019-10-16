@@ -1,6 +1,6 @@
 {
-  "name": "use-reducer-with-side-effects",
-  "version": "2.1.3",
+  "name": "cersei",
+  "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
