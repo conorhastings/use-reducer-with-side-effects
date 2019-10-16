@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef } from "react";
+import { useReducer, useEffect, useRef, useCallback } from "react";
 
 // for testing
 export const NO_UPDATE_SYMBOL = Symbol("NO_UPDATE_SYMBOL");
@@ -71,8 +71,10 @@ export default function useCreateReducerWithEffect(
   initialState,
   init
 ) {
+  const memoizedReducer = useCallback(finalReducer(reducer), [reducer]);
+
   const [{ state, sideEffects }, dispatch] = useReducer(
-    finalReducer(reducer),
+    memoizedReducer,
     {
       state: initialState,
       sideEffects: []
