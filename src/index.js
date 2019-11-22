@@ -33,15 +33,17 @@ export function mergeState(prevState, newState, isUpdate) {
   const existingEffects = isUpdate ? prevState.sideEffects : [];
 
   const newSideEffects = newState.sideEffects
-      ? [
-          ...existingEffects,
-          ...(Array.isArray(newState.sideEffects) ? newState.sideEffects : [newState.sideEffects]),
-        ]
-      : prevState.sideEffects;
-  
+    ? [
+        ...existingEffects,
+        ...(Array.isArray(newState.sideEffects)
+          ? newState.sideEffects
+          : [newState.sideEffects])
+      ]
+    : prevState.sideEffects;
+
   const hasNewState =
-    typeof newState.hasOwnProperty === 'function' &&
-    newState.hasOwnProperty('state');
+    typeof newState.hasOwnProperty === "function" &&
+    newState.hasOwnProperty("state");
 
   let updatedState;
   if (isUpdate) {
@@ -79,13 +81,16 @@ export default function useCreateReducerWithEffect(
       state: initialState,
       sideEffects: []
     },
-    (state) => {
-      let newState;
-      if (typeof init === 'function') {
-        newState = init(state);
+    state => {
+      if (typeof init !== "function") {
+        return state;
       }
 
-      return typeof newState !== 'undefined' ? mergeState(state, newState, false) : state;
+      const newState = {
+        state: init(initialState)
+      };
+
+      return mergeState(state, newState, false);
     }
   );
   let cancelFuncs = useRef([]);
@@ -141,7 +146,7 @@ export function composeReducers(reducers) {
         noUpdateCount++;
 
         returnValue = {
-          state,
+          state
         };
       } else {
         returnValue = result;
@@ -162,7 +167,7 @@ export function composeReducers(reducers) {
 
     return {
       state: reducedResult && reducedResult.state,
-      sideEffects,
+      sideEffects
     };
   };
 }
