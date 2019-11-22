@@ -35,15 +35,12 @@ export function mergeState(prevState, newState, isUpdate) {
   const newSideEffects = newState.sideEffects
     ? [
         ...existingEffects,
-        ...(Array.isArray(newState.sideEffects)
-          ? newState.sideEffects
-          : [newState.sideEffects])
+        ...(Array.isArray(newState.sideEffects) ? newState.sideEffects : [newState.sideEffects])
       ]
     : prevState.sideEffects;
 
   const hasNewState =
-    typeof newState.hasOwnProperty === "function" &&
-    newState.hasOwnProperty("state");
+    typeof newState.hasOwnProperty === "function" && newState.hasOwnProperty("state");
 
   let updatedState;
   if (isUpdate) {
@@ -68,11 +65,7 @@ function finalReducer(reducer) {
   };
 }
 
-export default function useCreateReducerWithEffect(
-  reducer,
-  initialState,
-  init
-) {
+export default function useCreateReducerWithEffect(reducer, initialState, init) {
   const memoizedReducer = useCallback(finalReducer(reducer), [reducer]);
 
   const [{ state, sideEffects }, dispatch] = useReducer(
