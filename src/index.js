@@ -14,7 +14,7 @@ export const UpdateWithSideEffect = (state, sideEffects) => ({
 
 export const SideEffect = sideEffects => ({ sideEffects });
 
-//for testting
+//for testing
 export async function executeSideEffects({ sideEffects, state, dispatch }) {
   let cancelFuncs = [];
   if (sideEffects) {
