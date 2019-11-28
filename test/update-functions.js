@@ -7,7 +7,7 @@ import {
   NO_UPDATE_SYMBOL
 } from "../src";
 
-test("Update should take a single argumentt and return an object with the key state", t => {
+test("Update should take a single argument and return an object with the key state", t => {
   const update = Update(1);
   t.deepEqual(update, { state: 1 }, "Update correctly updates ovject state");
   t.end();
