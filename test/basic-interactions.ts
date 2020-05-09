@@ -1,73 +1,91 @@
-import test from "tape";
+import * as test from "tape";
 import { renderHook, act } from "@testing-library/react-hooks";
 import useCreateReducerWithEffect, * as sut from "../src";
 
-const initialState = { updated: false, sideEffected: false }
-const sideEffect = (_, dispatch) => dispatch({ SideEffected: true })
+type State = typeof initialState;
 
-const reducer = (state, action) => {
-    const { Update, UpdateWithSideEffect, SideEffect, SideEffected } = action
+type Action = {
+  NoUpdate?: boolean;
+  Update?: boolean;
+  UpdateWithSideEffect?: boolean;
+  SideEffect?: boolean;
+  SideEffected?: boolean;
+};
 
-    if (Update)
-        return sut.Update({ ...state, updated: true })
+const initialState = { updated: false, sideEffected: false };
 
-    if (UpdateWithSideEffect)
-        return sut.UpdateWithSideEffect({ ...state, updated: true }, [sideEffect])
+const sideEffect: sut.SideEffect<State, Action> = (_, dispatch) =>
+  dispatch({ SideEffected: true });
 
-    if (SideEffect)
-        return sut.SideEffect([sideEffect])
+const reducer: sut.ReducerWithSideEffects<State, Action> = (state, action) => {
+  if (action === sut.NO_UPDATE_SYMBOL) return sut.NoUpdate();
 
-    if (SideEffected)
-        return sut.Update({ ...state, sideEffected: true })
+  const { Update, UpdateWithSideEffect, SideEffect, SideEffected } = action;
 
-    return sut.NoUpdate()
+  if (Update) return sut.Update({ ...state, updated: true });
+
+  if (UpdateWithSideEffect)
+    return sut.UpdateWithSideEffect({ ...state, updated: true }, [sideEffect]);
+
+  if (SideEffect) return sut.SideEffect([sideEffect]);
+
+  if (SideEffected) return sut.Update({ ...state, sideEffected: true });
+
+  return sut.NoUpdate();
+};
+
+function dispatchAction(action: Action | sut.NoUpdateSymbol) {
+  const { result } = renderHook(() =>
+    useCreateReducerWithEffect(reducer, initialState)
+  );
+
+  const [_, dispatch] = result.current;
+
+  act(() => dispatch(action));
+
+  return result.current;
 }
 
-function dispatchAction(action) {
-    const { result } = renderHook(() => useCreateReducerWithEffect(reducer, initialState))
+test("No update", (t) => {
+  const [state] = dispatchAction({ NoUpdate: true });
+  t.isEquivalent(state, initialState);
+  t.end();
+});
 
-    const [_, dispatch] = result.current
+test("Update", (t) => {
+  const [state] = dispatchAction({ Update: true });
+  t.isEquivalent(state, { ...initialState, updated: true });
+  t.end();
+});
 
-    act(() => dispatch(action))
+test("UpdateWithSideEffect", (t) => {
+  const [state] = dispatchAction({ UpdateWithSideEffect: true });
+  t.isEquivalent(state, { ...initialState, updated: true, sideEffected: true });
+  t.end();
+});
 
-    return result.current
-}
+test("SideEffect", (t) => {
+  const [state] = dispatchAction({ SideEffect: true });
+  t.isEquivalent(state, { ...initialState, sideEffected: true });
+  t.end();
+});
 
-test("No update", t => {
-    const [state] = dispatchAction({ NoUpdate: true })
-    t.isEquivalent(state, initialState)
-    t.end()
-})
+test("Init function", (t) => {
+  const { result } = renderHook(() =>
+    useCreateReducerWithEffect(
+      reducer,
+      { updated: false, sideEffected: false },
+      (state) => sut.Update({ ...state, updated: !state.updated })
+    )
+  );
+  const [state] = result.current;
 
-test("Update", t => {
-    const [state] = dispatchAction({ Update: true })
-    t.isEquivalent(state, { ...initialState, updated: true })
-    t.end()
-})
+  t.deepEqual(state, { updated: true, sideEffected: false });
+  t.end();
+});
 
-test("UpdateWithSideEffect", t => {
-    const [state] = dispatchAction({ UpdateWithSideEffect: true })
-    t.isEquivalent(state, { ...initialState, updated: true, sideEffected: true })
-    t.end()
-})
-
-test("SideEffect", t => {
-    const [state] = dispatchAction({ SideEffect: true })
-    t.isEquivalent(state, { ...initialState, sideEffected: true })
-    t.end()
-})
-
-test("Init function", t => {
-    const { result } = renderHook(() => useCreateReducerWithEffect(reducer, 0, () => sut.Update(1)))
-    const [state] = result.current
-
-    t.equal(state, 1)
-    t.end()
-})
-
-test("Disptaching NoUpdate returns original state", t => {
-    const [state] = dispatchAction(sut.NoUpdate())
-    t.equal(state, initialState)
-    t.end()
-})
-
+test("Disptaching NoUpdate returns original state", (t) => {
+  const [state] = dispatchAction(sut.NoUpdate());
+  t.equal(state, initialState);
+  t.end();
+});
