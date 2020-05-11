@@ -13,7 +13,7 @@ export type StateWithSideEffects<S, A> = {
 export type SideEffect<S, A> = (
   state: S,
   dispatch: Dispatch<A>
-) => void | CancelFunc<S>;
+) => void | CancelFunc<S> | Promise<void> | Promise<CancelFunc<S>>;
 
 export type CancelFunc<S> = (state: S) => void;
 
