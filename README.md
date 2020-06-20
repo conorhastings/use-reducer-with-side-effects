@@ -3,7 +3,9 @@
 [![Actions Status](https://github.com/conorhastings/react-syntax-highlighter/workflows/Node%20CI/badge.svg)](https://github.com/conorhastings/react-syntax-highlighter/actions)
 [![npm version](https://img.shields.io/npm/v/use-reducer-with-side-effects.svg)](https://www.npmjs.com/package/use-reducer-with-side-effects)
 
-  Inspired by the <a href="https://reasonml.github.io/reason-react/docs/en/state-actions-reducer">`reducerComponent`</a> of `ReasonReact`, this provides a way to declaratively declare side effects with updates, or to execute a side effect through the reducer while keeping the reducer pure.
+React's [`useReducer`](https://reactjs.org/docs/hooks-reference.html#usereducer) hook should be given a reducer that is a pure function with no side effects. (`useReducer` might call the reducer more than once with the same initial state.) Sometimes, however, it makes sense to include network calls or other side effects within the reducer in order to keep your program logic all in one place.
+
+  Inspired by the [`reducerComponent`](https://reasonml.github.io/reason-react/docs/en/state-actions-reducer) of `ReasonReact`, this library provides a way to declaratively declare side effects with updates, or to execute a side effect through the reducer while keeping the reducer pure.
   The general idea being that the side effects simply declare intent to execute further code, but belong with the update.
   reducers always return one of `Update`, `NoUpdate`, `UpdateWithSideEffects`, or `SideEffects` function.
 
@@ -17,17 +19,39 @@
 ### Exports
 
 * Update - Return synchronous new state wrapped in this function for a plain update. `Update(newState)`
-* NoUpdate - Instead of just returning state when nothing should occur, return NoUpdate() to allow hook to know no update will be taking place.
-* UpdateWithSideEffects - Very similar to update except it takes a second argument, a callback function receiving the newState and dispatch. 
-* SideEffects - simply receives a callback function with state, and dispatch as arguemnts.
+* NoUpdate - Indicate that there are no changes and no side effects. `NoUpdate()`
+* SideEffect - Receives a callback function with `state`, and `dispatch` as arguments.  `SideEffect((state, dispatch) => { /* do something */ }`
+* UpdateWithSideEffect - Very similar to `Update` and `SideEffect` combined. It takes the updated state as the first argument (as `Update`) and a side-effect callback as the second argument (as `SideEffect`). The callback function receives the updated `state` (newState) and a `dispatch`.  `UpdateWithSideEffect(newState, (state, dispatch) => { /* do something */ })`
 
-### Default Export - useReducerWithSideEffects(reducer, initialState);
+### Default Export - useReducerWithSideEffects hook;
 
-Outside of returning the functions of above inside you're reducer this should function almost identically to the built in useReducer.
+Nearly direct replacement to React's [useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) hook, however, the provided reducer must return the result of one of the above functions (`Update`/`NoUpdate`/`UpdateWithSideEffects`/`SideEffects`) instead of an updated object. See the [useReducer](https://reactjs.org/docs/hooks-reference.html#specifying-the-initial-state) documentation for different options on how to define the initial state.
+
+`const [state, dispatch] = useReducerWithSideEffects(reducer, initialState, init)`
+
+`const [state, dispatch] = useReducerWithSideEffects(reducer, {})`
+
+### Modify Existing Reducer
+If you've got an existing reducer that works with React's `useReducer` and you want to modify to use this library, do the following:
+
+1. Modify every state change return to use `Update`. 
+
+   old: `return {...state, foo: 'bar'}`
+
+   new: `return Update({...state, foo: 'bar'}`
+
+2. Modify every unchanged state return to use `NoUpdate`.
+
+   old: `return state`
+
+   new: `return NoUpdate()`
+   
+Now the reducer may be used with `useReducerWithSideEffects` and can have side effects added by using the `SideEffect` or `UpdateWithSideEffect` methods.
+
 
 ### Example 
 
-#### <a href="https://codesandbox.io/s/angry-bouman-rc2x6">Code Sandbox</a>
+#### [Code Sandbox](https://codesandbox.io/s/angry-bouman-rc2x6)
 
 #### A comparison using an adhoc use effect versus this library
 
